@@ -1,34 +1,34 @@
-#ifndef __CONTACTS_CONFIG_GENERATION_HPP__
-#define __CONTACTS_CONFIG_GENERATION_HPP__
+#ifndef __CONTACTS_GEOMETRY_GENERATION_HPP__
+#define __CONTACTS_GEOMETRY_GENERATION_HPP__
 
 // ASSUMPTIONS:
 // monodisperse
 // unit radii
 
 #include "contact.hpp"
-#include "contact_util.hpp"
+//#include "contact_util.hpp"
 #include <vector>
 #include <cstdlib>
 
 //--------------------------------------------------------------------
 // Declarations
-int generate_contacts(const int & ncontacts, std::vector<Contact> & contacts, const int & MAX_TRIES = 1000);
+int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MAX_TRIES = 1000);
 double distance(const double & theta0, const double & theta1);
 
 //--------------------------------------------------------------------
 // Definitions
-int generate_contacts(const int & ncontacts, std::vector<Contact> & contacts, 
-		      const int & MAX_TRIES)
+int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MAX_TRIES)
 {
   // for 2d, maximum 6 contacts allowed
   // for 3d, maximum 12 contacts allowed
+  const int ncontacts = contacts.size();
   if (ncontacts <= 0 || 7 <= ncontacts) return EXIT_FAILURE;
-
+  
   contacts.resize(ncontacts);
   std::fill(contacts.begin(), contacts.end(), null_contact);
   int ncontacts_found = 0;
   // create first contact
-  set_contact_with_angle(drand48()*2*M_PI, contacts[0]); // in [0, 2pi)
+  contacts[0].angle(drand48()*2*M_PI); // in [0, 2pi)
   ++ncontacts_found;
 
   // create reminaining contacts
@@ -40,13 +40,13 @@ int generate_contacts(const int & ncontacts, std::vector<Contact> & contacts,
       // check if non-blocked for other contacts
       bool nonblocked = true;
       for ( int jj = 0; jj < ncontacts_found; ++jj ) {
-	if ( distance(theta, get_theta(contacts[jj])) < M_PI/6.0 ) {  // less than 30 = 60/2 = 2d minimum angle monodisperse
+	if ( distance(theta, contacts[jj].angle()) < M_PI/3.0 ) {  // less than 60 = 2d minimum angle monodisperse
 	  nonblocked = false;
 	  break;
 	}
       }
       if (true == nonblocked) {
-	set_contact_with_angle(theta, contacts[ncontacts_found]);
+	contacts[ncontacts_found].angle(theta);
 	++ncontacts_found;
 	found = true;
 	break;
@@ -58,6 +58,8 @@ int generate_contacts(const int & ncontacts, std::vector<Contact> & contacts,
       return EXIT_FAILURE;
     }
   }
+
+  return EXIT_SUCCESS;
 }
 
 double distance(const double & theta0, const double & theta1)
@@ -67,4 +69,4 @@ double distance(const double & theta0, const double & theta1)
   return std::fmod(theta0 - theta1 + 2*M_PI, M_PI);
 }
 
-#endif // __CONTACTS_CONFIG_GENERATION_HPP__
+#endif // __CONTACTS_GEOMETRY_GENERATION_HPP__

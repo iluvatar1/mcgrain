@@ -1,5 +1,6 @@
 #include "../inc/contact.hpp"
-#include "../inc/contacts_config_generation.hpp"
+#include "../inc/contacts_geometry_generation.hpp"
+#include "../inc/contacts_force_generation.hpp"
 #include <cstdlib>
 #include <vector>
 #include <iostream>
@@ -19,11 +20,16 @@ int main(int argc, char **argv)
   
   int ii = 0, count = 0;
   while (ii < TOTAL) {
-    int status = generate_contacts(NC, contacts);
+    // geometry
+    int status = generate_contacts_geometry(contacts);
+    // forces
+    if ( EXIT_SUCCESS == status ) {
+      status = generate_forces(0.0, contacts);
+    }
+    // print
     if ( EXIT_SUCCESS == status ) {
       for (const auto & c : contacts) {
-	//std::cout << c.x << "\t" << c.y << "\n"; // print coordinates
-	std::cout << std::atan2(c.y, c.x) << "\n"; // print polar angle
+	std::cout << c.fn() << "\n"; // print forces
       }
       ++count;
     }
