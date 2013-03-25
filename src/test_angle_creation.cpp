@@ -1,5 +1,5 @@
 #include "../inc/contact.hpp"
-#include "../inc/contacts_generation.hpp"
+#include "../inc/contacts_config_generation.hpp"
 #include <cstdlib>
 #include <vector>
 #include <iostream>

@@ -1,5 +1,5 @@
-#ifndef __CONTACTS_GENERATION_HPP__
-#define __CONTACTS_GENERATION_HPP__
+#ifndef __CONTACTS_CONFIG_GENERATION_HPP__
+#define __CONTACTS_CONFIG_GENERATION_HPP__
 
 // ASSUMPTIONS:
 // monodisperse
@@ -40,7 +40,7 @@ int generate_contacts(const int & ncontacts, std::vector<Contact> & contacts,
       // check if non-blocked for other contacts
       bool nonblocked = true;
       for ( int jj = 0; jj < ncontacts_found; ++jj ) {
-	if ( distance(theta, get_theta(contacts[jj])) < M_PI/6 ) {  // less than 30 = 60/2 = 2d minimum angle monodisperse
+	if ( distance(theta, get_theta(contacts[jj])) < M_PI/6.0 ) {  // less than 30 = 60/2 = 2d minimum angle monodisperse
 	  nonblocked = false;
 	  break;
 	}
@@ -67,4 +67,4 @@ double distance(const double & theta0, const double & theta1)
   return std::fmod(theta0 - theta1 + 2*M_PI, M_PI);
 }
 
-#endif // __CONTACTS_GENERATION_HPP__
+#endif // __CONTACTS_CONFIG_GENERATION_HPP__
