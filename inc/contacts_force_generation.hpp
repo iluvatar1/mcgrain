@@ -11,90 +11,61 @@
 #include <algorithm>
 #include <iostream>
 
-const double FNMAX = 1.23;
-
 //--------------------------------------------------------------------
 // Declarations
-int generate_forces(const double & mus, std::vector<Contact> & contacts, const int & MAX_TRIES = 1000);
+//int generate_forces(std::vector<Contact> & contacts, const double & MAX_TRIES = 1000);
 
 //--------------------------------------------------------------------
 // Definitions
-int generate_forces(const double & mus, std::vector<Contact> & contacts, const int & MAX_TRIES)
+double new_normal_force(const Contact & contact, const double & width) 
 {
-  assert(0.0 <= mus && mus <= 1.0);
+  double fnnew = contact.fn() + (-width + 2.0*width*drand48());
+  if (fnnew < 0) fnnew = contact.fn();
+  return fnnew;
+}
+
+int generate_forces(std::vector<Contact> & contacts, const double & width)
+{
   const int ncontacts = contacts.size();
   if (ncontacts <= 1) return EXIT_FAILURE;
 
-  // search MAX_TRIES times for new force configs
-  double Normal[2], Tangential[2], Fnsum[2], Ftsum[2];
-  double fn, ft;
+  double Normal[2], Fsum[2];
+  double fntest = 0;
   bool forces_found = false;
-
-  // reset : WARNING only if not using previous config !!!
-  for (auto & c : contacts) c.reset_forces();
 
   const int iiref1 = int(drand48()*ncontacts);
   const int iiref2 = (iiref1 + 1)%ncontacts;
-  Fnsum[0] = Fnsum[1] = 0;
-  Ftsum[0] = Ftsum[1] = 0;
+  Fsum[0] = Fsum[1] = 0;
   for ( int ii = 0; ii < ncontacts; ++ii ) {
-    if ( iiref1 == ii ) continue;
-    if ( iiref2 == ii ) continue;
-    fn = FNMAX*drand48();
-    ft = -mus*fn + 2*mus*fn*drand48();
-    contacts[ii].normal_force(fn);
-    contacts[ii].tangential_force(ft);
+    if ( iiref1 == ii || iiref2 == ii ) continue;
+    fntest = new_normal_force(contacts[ii], width);
+    contacts[ii].fnnew(fntest);
     contacts[ii].normal(Normal[0], Normal[1]);
-    contacts[ii].tangential(Tangential[0], Tangential[1]);
-    Fnsum[0] += fn*Normal[0];
-    Fnsum[1] += fn*Normal[1];
-    Ftsum[0] += ft*Tangential[0];
-    Ftsum[1] += ft*Tangential[1];
+    Fsum[0] += fntest*Normal[0]; Fsum[1] += fntest*Normal[1];
   }
-  // Remaining forces using auxiliary contacts
+  // Remaining forces using auxiliary contacts to fullfill mechanical equilibrium
   double U1[2], U2[2]; // Unitary vectors
   // normal force
   contacts[iiref1].normal(U1[0], U1[1]);
   contacts[iiref2].normal(U2[0], U2[1]);
   const double auxn = U1[1]*U2[0] - U1[0]*U2[1];
   if (0 != auxn) {
-    fn = (Fnsum[0]*U2[1] - Fnsum[1]*U2[0])/auxn;
-    if (fn < 0) return EXIT_FAILURE;
-    contacts[iiref1].normal_force(fn);
-    fn = (Fnsum[1]*U1[0] - Fnsum[0]*U1[1])/auxn;
-    if (fn < 0) return EXIT_FAILURE;
-    contacts[iiref2].normal_force(fn);
+    fntest = (Fsum[0]*U2[1] - Fsum[1]*U2[0])/auxn;
+    if (fntest < 0) return EXIT_FAILURE;
+    contacts[iiref1].fnnew(fntest);
+    fntest = (Fsum[1]*U1[0] - Fsum[0]*U1[1])/auxn;
+    if (fntest < 0) return EXIT_FAILURE;
+    contacts[iiref2].fnnew(fntest);
   }
   else {
-    contacts[iiref1].normal_force(FNMAX*drand48());
-    contacts[iiref2].normal_force(FNMAX*drand48());
+    fntest = new_normal_force(contacts[iiref1], width);
+    contacts[iiref1].fnnew(fntest);
+    fntest = new_normal_force(contacts[iiref2], width);
+    contacts[iiref2].fnnew(fntest);
   }
-  // tangential force
-  contacts[iiref1].tangential(U1[0], U1[1]);
-  contacts[iiref2].tangential(U2[0], U2[1]);
-  const double auxt = U1[1]*U2[0] - U1[0]*U2[1];
-  if (0 != auxt) {
-    contacts[iiref1].tangential_force((Ftsum[0]*U2[1] - Ftsum[1]*U2[0])/auxt);
-    contacts[iiref2].tangential_force((Ftsum[1]*U1[0] - Ftsum[0]*U1[1])/auxt);
-    // check tangential forces
-    fn = contacts[iiref1].fn();
-    if (-mus*fn <= contacts[iiref1].ft() && contacts[iiref1].ft() <= mus*fn ) {
-      fn = contacts[iiref2].fn();
-      if (-mus*fn <= contacts[iiref2].ft() && contacts[iiref2].ft() <= mus*fn) {
-	forces_found = true; 
-      }
-    }
-  }
-  else {
-    fn = contacts[iiref1].fn();
-    contacts[iiref1].tangential_force(-mus*fn + 2*mus*fn*drand48());
-    fn = contacts[iiref2].fn();
-    contacts[iiref2].tangential_force(-mus*fn + 2*mus*fn*drand48());
-    forces_found = true; 
-  }
+  forces_found = true;
     
   if (false == forces_found) {
-    for (auto & c : contacts) c.reset_forces();
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

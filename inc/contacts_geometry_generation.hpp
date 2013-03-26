@@ -24,8 +24,6 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MAX_
   const int ncontacts = contacts.size();
   if (ncontacts <= 0 || 7 <= ncontacts) return EXIT_FAILURE;
   
-  contacts.resize(ncontacts);
-  std::fill(contacts.begin(), contacts.end(), null_contact);
   int ncontacts_found = 0;
   // create first contact
   contacts[0].angle(drand48()*2*M_PI); // in [0, 2pi)
