@@ -33,8 +33,8 @@ int generate_forces(std::vector<Contact> & contacts, const double & width)
   double fntest = 0;
   bool forces_found = false;
 
-  const int iiref1 = int(drand48()*ncontacts);
-  const int iiref2 = (iiref1 + 1)%ncontacts;
+  int iiref1 = int(drand48()*ncontacts);
+  int iiref2 = int(drand48()*ncontacts); while (iiref2 == iiref1) { iiref2 = int(drand48()*ncontacts); }
   Fsum[0] = Fsum[1] = 0;
   for ( int ii = 0; ii < ncontacts; ++ii ) {
     if ( iiref1 == ii || iiref2 == ii ) continue;
