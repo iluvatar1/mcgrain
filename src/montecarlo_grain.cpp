@@ -8,13 +8,14 @@
 
 int main(int argc, char **argv) 
 {
-  if ( 3 != argc ) {
-    std::cerr << "ERROR. Usage :\n" << argv[0] << " ncontacts_per_iter  niter" << std::endl;
+  if ( 4 != argc ) {
+    std::cerr << "ERROR. Usage :\n" << argv[0] << " ncontacts_per_iter  niter contacts_mode(fixed = 0, random = 1)" << std::endl;
     return EXIT_FAILURE;
   }
   
   const int NC    = std::atoi(argv[1]);
   const int TOTAL = std::atoi(argv[2]);
+  const int MODE  = std::atoi(argv[3]);
   srand48(0);
 
   /*// 4 contacts, just a checking tool
@@ -27,10 +28,10 @@ int main(int argc, char **argv)
   
   std::vector<Contact> contacts(NC, null_contact);
   // geometry
-  int status = generate_contacts_geometry(contacts);
+  int status = generate_contacts_geometry(contacts, MODE);
   assert(EXIT_SUCCESS == status);
   for (const auto & c : contacts) {
-    std::cout << "# " << c.angle() << "\n"; // print angles
+    std::clog << "# " << c.angle() << "\n"; // print angles
   }
   
   // initial forces : random, not in equilibrium
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
     // mcstep
     mcstep(contacts, width, alpha);
     // print
-    if (100 == pcount) {
+    if ( (ii > TOTAL/4) && ( pcount >= 1000 ) ) {
       for (const auto & c : contacts) {
 	std::cout << c.fn() << "\n"; // print forces
       }

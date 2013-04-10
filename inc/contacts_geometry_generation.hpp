@@ -6,54 +6,66 @@
 // unit radii
 
 #include "contact.hpp"
-//#include "contact_util.hpp"
+#include <iostream>
 #include <vector>
 #include <cstdlib>
 
 //--------------------------------------------------------------------
 // Declarations
-int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MAX_TRIES = 1000);
+int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE, const int & MAX_TRIES = 1000);
 double distance(const double & theta0, const double & theta1);
 
 //--------------------------------------------------------------------
 // Definitions
-int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MAX_TRIES)
+int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE, const int & MAX_TRIES)
 {
+  if (MAX_TRIES <= 0) return EXIT_FAILURE;
+  if (0 != MODE && 1 != MODE) return EXIT_FAILURE;
   // for 2d, maximum 6 contacts allowed
   // for 3d, maximum 12 contacts allowed
   const int ncontacts = contacts.size();
   if (ncontacts <= 0 || 7 <= ncontacts) return EXIT_FAILURE;
   
-  int ncontacts_found = 0;
-  // create first contact
-  contacts[0].angle(drand48()*2*M_PI); // in [0, 2pi)
-  ++ncontacts_found;
-
-  // create reminaining contacts
-  while (ncontacts_found < ncontacts) {
-    bool found = false;
-    int ii = 0;
-    while (ii < MAX_TRIES) {
-      const double theta = drand48()*2*M_PI; // in [0, 2pi)
-      // check if non-blocked for other contacts
-      bool nonblocked = true;
-      for ( int jj = 0; jj < ncontacts_found; ++jj ) {
-	if ( distance(theta, contacts[jj].angle()) < M_PI/3.0 ) {  // less than 60 = 2d minimum angle monodisperse
-	  nonblocked = false;
+  // create contacts
+  if ( 0 == MODE ) { // fixed angles
+    std::clog << "# Fixed angles mode" << std::endl;
+    const double delta = 2*M_PI/ncontacts;
+    for ( int ii = 0; ii < ncontacts; ++ii ) {
+      contacts[ii].angle(ii*delta);
+    }
+  }
+  else if ( 1 == MODE ) { // random angles
+    std::clog << "# Random angles mode" << std::endl;
+    int ncontacts_found = 0;
+    // create first contact
+    contacts[0].angle(drand48()*2*M_PI); // in [0, 2pi)
+    ++ncontacts_found;
+    // create reminaining contacts
+    while (ncontacts_found < ncontacts) {
+      bool found = false;
+      int ii = 0;
+      while (ii < MAX_TRIES) {
+	const double theta = drand48()*2*M_PI; // in [0, 2pi)
+	// check if non-blocked for other contacts
+	bool nonblocked = true;
+	for ( int jj = 0; jj < ncontacts_found; ++jj ) {
+	  if ( distance(theta, contacts[jj].angle()) < M_PI/3.0 ) {  // less than 60 = 2d minimum angle monodisperse
+	    nonblocked = false;
+	    break;
+	  }
+	}
+	if (true == nonblocked) {
+	  contacts[ncontacts_found].angle(theta);
+	  ++ncontacts_found;
+	  found = true;
 	  break;
 	}
+	++ii;
       }
-      if (true == nonblocked) {
-	contacts[ncontacts_found].angle(theta);
-	++ncontacts_found;
-	found = true;
-	break;
+      if (false == found) {
+	std::fill(contacts.begin(), contacts.end(), null_contact);
+	return EXIT_FAILURE;
       }
-      ++ii;
-    }
-    if (false == found) {
-      std::fill(contacts.begin(), contacts.end(), null_contact);
-      return EXIT_FAILURE;
     }
   }
 
