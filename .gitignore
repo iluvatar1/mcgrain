@@ -1,0 +1,7 @@
+*.dat
+*.pdf
+*.agr
+*.ii
+*.o
+*.s
+a.out*
