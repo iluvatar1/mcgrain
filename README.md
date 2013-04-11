@@ -5,4 +5,6 @@ gsl-histogram 0.0001 200 200 < tmp-fixed-dat6.dat | awk '{print $1, $3}' > tmp-f
 
 
 Compilation:
-g++-4.7 -std=c++11  -g -ggdb -Wall --save-temps src/montecarlo_grain.cpp
+g++-4.7 -std=c++11 -O2 -Wall -I~/lib/inc/ src/montecarlo_grain.cpp
+
+For debugging: -g -ggdb --save-temps
