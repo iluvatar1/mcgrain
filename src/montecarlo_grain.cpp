@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 
 int main(int argc, char **argv) 
@@ -15,11 +16,12 @@ int main(int argc, char **argv)
 	      << " ncontacts ngeometry_realizations niter_per_geometry contacts_mode(fixed = 0, random = 1)" << std::endl;
     return EXIT_FAILURE;
   }
-  
   const int  NC        = std::atoi(argv[1]);
   const long NGEOMETRY = std::atol(argv[2]);
   const long NITER_GEO = std::atol(argv[3]);
   const int  MODE      = std::atoi(argv[4]);
+  std::ofstream fnout("fn.dat");
+  std::ofstream pout("p.dat");
   srand48(0);
 
   /*// 4 contacts, just a checking tool
@@ -54,13 +56,17 @@ int main(int argc, char **argv)
       // print
       if ( (ii > std::min(long(50000), NITER_GEO/4)) && ( pcount >= 1000 ) ) {
 	for (const auto & c : contacts) {
-	  std::cout << c.fn() << "\n"; // print forces
+	  fnout << c.fn() << "\n"; // print forces
 	}
+	pout << get_p(contacts) << "\n";
 	pcount = 0;
       }
       ++ii; ++pcount;
     }
   }
+
+  fnout.close();
+  pout.close();
 
   return EXIT_SUCCESS;
 }
