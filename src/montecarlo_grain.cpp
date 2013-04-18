@@ -9,6 +9,8 @@
 #include <fstream>
 #include <algorithm>
 
+typedef long long LONG;
+
 int main(int argc, char **argv) 
 {
   if ( 5 != argc ) {
@@ -18,8 +20,8 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
   const int  NC        = std::atoi(argv[1]);
-  const long NGEOMETRY = std::atol(argv[2]);
-  const long NITER_GEO = std::atol(argv[3]);
+  const LONG NGEOMETRY = std::atoll(argv[2]);
+  const LONG NITER_GEO = std::atoll(argv[3]);
   const int  MODE      = std::atoi(argv[4]);
   std::ofstream fnout("fn.dat"); if (!fnout) { std::cerr << "ERROR: Cannot open fn.dat\n"; std::exit(1); }
   std::ofstream pout("p.dat"); if (!pout) { std::cerr << "ERROR: Cannot open p.dat\n"; std::exit(1); }
@@ -50,7 +52,7 @@ int main(int argc, char **argv)
   */
   
   std::vector<Contact> contacts(NC, null_contact);
-  for (long igeom = 0; igeom < NGEOMETRY; ++igeom) {
+  for (LONG igeom = 0; igeom < NGEOMETRY; ++igeom) {
     // generate geometry
     int status = generate_contacts_geometry(contacts, MODE, ranmt);
     assert(EXIT_SUCCESS == status);
@@ -62,12 +64,12 @@ int main(int argc, char **argv)
     for (auto & c : contacts) c.fn(ranmt.uniform(0.1*norm_fn, 10*norm_fn)); 
     
     // mc steps
-    long ii = 0, pcount = 0;
+    LONG ii = 0, pcount = 0;
     while (ii < NITER_GEO) {
       // mcstep
       mcstep(contacts, WIDTH, ALPHA, ranmt);
       // print
-      if ( (ii > std::min(long(50000), NITER_GEO/4)) && ( pcount >= 1000 ) ) { // WARNING : Magic constants for teq and tcorr
+      if ( (ii > std::min(LONG(50000), NITER_GEO/4)) && ( pcount >= 1000 ) ) { // WARNING : Magic constants for teq and tcorr
 	for (const auto & c : contacts) {
 	  fnout << c.fn()/norm_fn << "\n"; // print forces
 	}
