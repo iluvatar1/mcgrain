@@ -7,13 +7,14 @@
 
 int main(int argc, char **argv) 
 {
-  if ( 3 != argc ) {
-    std::cerr << "ERROR. Usage :\n" << argv[0] << " ncontacts_per_iter  niter" << std::endl;
+  if ( 4 != argc ) {
+    std::cerr << "ERROR. Usage :\n" << argv[0] << " ncontacts  niter contacts_mode(fixed = 0, random = 1)" << std::endl;
     return EXIT_FAILURE;
   }
   
   const int NC    = std::atoi(argv[1]);
   const int TOTAL = std::atoi(argv[2]);
+  const int MODE  = std::atoi(argv[3]);
   srand48(0);
   int status = 1;
 
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
   
   std::vector<Contact> contacts(NC, null_contact);
   // geometry
-  status = generate_contacts_geometry(contacts);
+  status = generate_contacts_geometry(contacts, MODE);
   // forces
   for (auto & c : contacts) c.fn(10*drand48());
 

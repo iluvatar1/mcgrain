@@ -6,3 +6,4 @@
 *.s
 a.out*
 *.x
+*DS_Store*
