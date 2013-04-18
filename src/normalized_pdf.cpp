@@ -33,7 +33,7 @@ int main(int argc, char **argv)
   // print data
   const double mean = histo.mean();
   histo.print("histo_original.dat");
-  histo.print("histo.dat", 1.0/mean, 0.0, 1.0/mean, 0.0);
+  histo.print("histo.dat", 1.0/mean, 0.0, mean, 0.0);
 
   // finnish
   return EXIT_SUCCESS;
