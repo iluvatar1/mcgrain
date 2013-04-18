@@ -1,3 +1,11 @@
 - WHy does it work? is geometry not related with forces?
+
+
 - Is that a gamma function with fmin = 0?
+
+
 - What kind of distribution do I expect if I change width or alpha? check
+Now I am printing normalized. If width is too small, I need a lot of samples
+to get good statistics, but the shape does not change.
+If alpha is increased, I will need to increase also alpha to improve exploration
+of larger forces, otherwise I will need to wait for so long after many samples.

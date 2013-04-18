@@ -21,8 +21,23 @@ int main(int argc, char **argv)
   const long NGEOMETRY = std::atol(argv[2]);
   const long NITER_GEO = std::atol(argv[3]);
   const int  MODE      = std::atoi(argv[4]);
-  std::ofstream fnout("fn.dat");
-  std::ofstream pout("p.dat");
+  std::ofstream fnout("fn.dat"); if (!fnout) { std::cerr << "ERROR: Cannot open fn.dat\n"; std::exit(1); }
+  std::ofstream pout("p.dat"); if (!pout) { std::cerr << "ERROR: Cannot open p.dat\n"; std::exit(1); }
+
+  // input mcgrain parameters
+  double tmp;
+  std::ifstream fin("config_conf"); if (!fin) { std::cerr << "ERROR: Cannot open config_conf \n"; std::exit(1); }
+  fin >> tmp; const double WIDTH = tmp; 
+  fin >> tmp; const double ALPHA = tmp; // 1/p0
+  fin.close();
+  if (WIDTH <= 0 || ALPHA <= 0) { std::cerr << "ERROR: Bad config values. \n"; std::exit(1); }
+  const double norm_p  = 1.0/ALPHA; // = p0
+  const double norm_fn = 4*norm_p;  // = d^2*p0
+  std::clog << "# WIDTH = " << WIDTH << std::endl;
+  std::clog << "# ALPHA = " << ALPHA << std::endl;
+
+
+  // Random number generator
   //srand48(0);
   Random ranmt(0);
 
@@ -33,7 +48,7 @@ int main(int argc, char **argv)
   contacts[2].angle(M_PI);      contacts[2].fn(1);
   contacts[3].angle(3*M_PI/2);  contacts[3].fn(1);
   */
-
+  
   std::vector<Contact> contacts(NC, null_contact);
   for (long igeom = 0; igeom < NGEOMETRY; ++igeom) {
     // generate geometry
@@ -44,23 +59,19 @@ int main(int argc, char **argv)
     }
     
     // initial forces : random, not in equilibrium
-    for (auto & c : contacts) c.fn(10*ranmt.r());
-    
-    // parameters for new force generation
-    const double width = 0.5;
-    const double alpha = 0.1;
+    for (auto & c : contacts) c.fn(ranmt.uniform(0.1*norm_fn, 10*norm_fn)); 
     
     // mc steps
     long ii = 0, pcount = 0;
     while (ii < NITER_GEO) {
       // mcstep
-      mcstep(contacts, width, alpha, ranmt);
+      mcstep(contacts, WIDTH, ALPHA, ranmt);
       // print
-      if ( (ii > std::min(long(50000), NITER_GEO/4)) && ( pcount >= 1000 ) ) {
+      if ( (ii > std::min(long(50000), NITER_GEO/4)) && ( pcount >= 1000 ) ) { // WARNING : Magic constants for teq and tcorr
 	for (const auto & c : contacts) {
-	  fnout << c.fn() << "\n"; // print forces
+	  fnout << c.fn()/norm_fn << "\n"; // print forces
 	}
-	pout << get_p(contacts) << "\n";
+	pout << get_p(contacts)/norm_p << "\n";
 	pcount = 0;
       }
       ++ii; ++pcount;
