@@ -2,6 +2,7 @@
 #include "../inc/contacts_geometry_generation.hpp"
 #include "../inc/contacts_force_generation.hpp"
 #include "../inc/mcgrain.hpp"
+#include "../inc/random.hpp"
 #include <cstdlib>
 #include <vector>
 #include <iostream>
@@ -22,7 +23,8 @@ int main(int argc, char **argv)
   const int  MODE      = std::atoi(argv[4]);
   std::ofstream fnout("fn.dat");
   std::ofstream pout("p.dat");
-  srand48(0);
+  //srand48(0);
+  Random ranmt(0);
 
   /*// 4 contacts, just a checking tool
   std::vector<Contact> contacts(4, null_contact);
@@ -35,14 +37,14 @@ int main(int argc, char **argv)
   std::vector<Contact> contacts(NC, null_contact);
   for (long igeom = 0; igeom < NGEOMETRY; ++igeom) {
     // generate geometry
-    int status = generate_contacts_geometry(contacts, MODE);
+    int status = generate_contacts_geometry(contacts, MODE, ranmt);
     assert(EXIT_SUCCESS == status);
     for (const auto & c : contacts) {
       std::clog << "# " << c.angle() << "\n"; // print angles
     }
     
     // initial forces : random, not in equilibrium
-    for (auto & c : contacts) c.fn(10*drand48());
+    for (auto & c : contacts) c.fn(10*ranmt.r());
     
     // parameters for new force generation
     const double width = 0.5;
@@ -52,7 +54,7 @@ int main(int argc, char **argv)
     long ii = 0, pcount = 0;
     while (ii < NITER_GEO) {
       // mcstep
-      mcstep(contacts, width, alpha);
+      mcstep(contacts, width, alpha, ranmt);
       // print
       if ( (ii > std::min(long(50000), NITER_GEO/4)) && ( pcount >= 1000 ) ) {
 	for (const auto & c : contacts) {

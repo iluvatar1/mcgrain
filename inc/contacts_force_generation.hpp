@@ -17,14 +17,16 @@
 
 //--------------------------------------------------------------------
 // Definitions
-double new_normal_force(const Contact & contact, const double & width) 
+template <class Random_t>
+double new_normal_force(const Contact & contact, const double & width, Random_t & ranmt) 
 {
-  double fnnew = contact.fn() + (-width + 2.0*width*drand48());
+  double fnnew = contact.fn() + ranmt.uniform(-width, width);
   if (fnnew < 0) fnnew = contact.fn();
   return fnnew;
 }
 
-int generate_forces(std::vector<Contact> & contacts, const double & width)
+template <class Random_t>
+int generate_forces(std::vector<Contact> & contacts, const double & width, Random_t & ranmt)
 {
   const int ncontacts = contacts.size();
   if (ncontacts <= 1) return EXIT_FAILURE;
@@ -33,12 +35,12 @@ int generate_forces(std::vector<Contact> & contacts, const double & width)
   double fntest = 0;
   bool forces_found = false;
 
-  int iiref1 = int(drand48()*ncontacts);
-  int iiref2 = int(drand48()*ncontacts); while (iiref2 == iiref1) { iiref2 = int(drand48()*ncontacts); }
+  int iiref1 = int(ranmt.r()*ncontacts);
+  int iiref2 = int(ranmt.r()*ncontacts); while (iiref2 == iiref1) { iiref2 = int(ranmt.r()*ncontacts); }
   Fsum[0] = Fsum[1] = 0;
   for ( int ii = 0; ii < ncontacts; ++ii ) {
     if ( iiref1 == ii || iiref2 == ii ) continue;
-    fntest = new_normal_force(contacts[ii], width);
+    fntest = new_normal_force(contacts[ii], width, ranmt);
     contacts[ii].fnnew(fntest);
     contacts[ii].normal(Normal[0], Normal[1]);
     Fsum[0] += fntest*Normal[0]; Fsum[1] += fntest*Normal[1];
@@ -58,9 +60,9 @@ int generate_forces(std::vector<Contact> & contacts, const double & width)
     contacts[iiref2].fnnew(fntest);
   }
   else {
-    fntest = new_normal_force(contacts[iiref1], width);
+    fntest = new_normal_force(contacts[iiref1], width, ranmt);
     contacts[iiref1].fnnew(fntest);
-    fntest = new_normal_force(contacts[iiref2], width);
+    fntest = new_normal_force(contacts[iiref2], width, ranmt);
     contacts[iiref2].fnnew(fntest);
   }
   forces_found = true;

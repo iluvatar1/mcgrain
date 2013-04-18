@@ -1,6 +1,7 @@
 #include "../inc/contact.hpp"
 #include "../inc/contacts_geometry_generation.hpp"
 #include "../inc/contacts_force_generation.hpp"
+#include "../inc/random.hpp"
 #include <cstdlib>
 #include <vector>
 #include <iostream>
@@ -15,7 +16,8 @@ int main(int argc, char **argv)
   const int NC    = std::atoi(argv[1]);
   const int TOTAL = std::atoi(argv[2]);
   const int MODE  = std::atoi(argv[3]);
-  srand48(0);
+  //srand48(0);
+  Random ranmt(0); 
   int status = 1;
 
   /*// 4 contacts, check tool
@@ -28,14 +30,14 @@ int main(int argc, char **argv)
   
   std::vector<Contact> contacts(NC, null_contact);
   // geometry
-  status = generate_contacts_geometry(contacts, MODE);
+  status = generate_contacts_geometry(contacts, MODE, ranmt);
   // forces
-  for (auto & c : contacts) c.fn(10*drand48());
+  for (auto & c : contacts) c.fn(10*ranmt.r());
 
   int ii = 0, count = 0;
   while (ii < TOTAL) {
     // forces
-    status = generate_forces(contacts, 0.5);
+    status = generate_forces(contacts, 0.5, ranmt);
     std::cout << "#status = " << status << std::endl;
     // print
     if ( EXIT_SUCCESS == status ) {

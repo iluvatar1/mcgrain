@@ -12,12 +12,16 @@
 
 //--------------------------------------------------------------------
 // Declarations
-int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE, const int & MAX_TRIES = 1000);
+template <class Random_t>
+int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE, Random_t & ranmt, 
+			       const int & MAX_TRIES = 1000);
 double distance(const double & theta0, const double & theta1);
 
 //--------------------------------------------------------------------
 // Definitions
-int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE, const int & MAX_TRIES)
+template <class Random_t>
+int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE, Random_t & ranmt, 
+			       const int & MAX_TRIES)
 {
   if (MAX_TRIES <= 0) return EXIT_FAILURE;
   if (0 != MODE && 1 != MODE) return EXIT_FAILURE;
@@ -38,14 +42,14 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
     std::clog << "# Random angles mode" << std::endl;
     int ncontacts_found = 0;
     // create first contact
-    contacts[0].angle(drand48()*2*M_PI); // in [0, 2pi)
+    contacts[0].angle(ranmt.uniform(0, 2*M_PI)); // in [0, 2pi)
     ++ncontacts_found;
     // create reminaining contacts
     while (ncontacts_found < ncontacts) {
       bool found = false;
       int ii = 0;
       while (ii < MAX_TRIES) {
-	const double theta = drand48()*2*M_PI; // in [0, 2pi)
+	const double theta = ranmt.uniform(0, 2*M_PI); // in [0, 2pi)
 	// check if non-blocked for other contacts
 	bool nonblocked = true;
 	for ( int jj = 0; jj < ncontacts_found; ++jj ) {
