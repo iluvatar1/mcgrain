@@ -1,5 +1,16 @@
-0.5
+6
+1
+100000
+0
+0
+4.5
 0.1
 
-1 value : Width. Fnew -> Fold + [-width, width]
-2 value : alpha. alpha = 1/p0, p0 = Mean external value for pressure p
+1 value : NC. Number of contacts
+2 value : NGEOMETRY. Number of times to test a geometry, important for random mode
+3 value : NITER_GEO. Number of iterations per geometry
+4 value : MODE. Contacts Mode: 0 = fixed, 1 = random
+5 value : SEED. Seed for random number
+6 value : WIDTH. Fnew -> Fold + [-width, width]
+7 value : ALPHA. alpha = 1/p0, p0 = Mean external value for pressure p
+
