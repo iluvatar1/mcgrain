@@ -31,7 +31,7 @@ $(BDIR)/%.x: %.o
 	$(CXX) $(CXXFLAGS) -o $(BDIR)/$@.x $< 
 
 # all target
-all: $(BDIR)/montecarlo_grain.x  $(BDIR)/normalized_pdf.x  $(BDIR)/test_force_creation.x  $(BDIR)/test_geometry_creation.x 
+all: $(BDIR)/montecarlo_grain.x  $(BDIR)/normalized_pdf.x  $(BDIR)/test_force_creation.x  $(BDIR)/test_geometry_creation.x $(BDIR)/tcorr.x 
 
 # make clean
 clean :

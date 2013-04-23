@@ -10,6 +10,11 @@
 #include <algorithm>
 
 //--------------------------------------------------------------------
+// Constants
+const int NEQUI = 60000000; // computed from data
+const int NCORR = 15000;    // computed from example data
+
+//--------------------------------------------------------------------
 // New data types
 typedef long long LONG;
 struct Configuration {
@@ -72,7 +77,7 @@ int main(int argc, char **argv)
       // mcstep
       mcstep(contacts, config.WIDTH, config.ALPHA, ranmt);
       // print
-      if ( (ii > std::min(LONG(50000), config.NITER_GEO/4)) && ( pcount >= 1000 ) ) { // WARNING : Magic constants for teq and tcorr
+      if ( (ii >= NEQUI) && ( pcount >= NCORR ) ) { // WARNING : Magic constants for teq and tcorr
 	for (const auto & c : contacts) {
 	  fnout << c.fn()/norm_fn << "\n"; // print forces
 	}
@@ -119,9 +124,18 @@ int read_config(const char * filename, Configuration & config)
   fin.close();
 
   // validation
+  if (config.NITER_GEO < NEQUI ) { std::cerr << "ERROR: NITER_GEO too small (should be >= " << NEQUI << ").\n"; return EXIT_FAILURE; }
   if (config.WIDTH <= 0 || config.ALPHA <= 0) { std::cerr << "ERROR: Bad config values for ALPHA OR WIDTH. \n"; return EXIT_FAILURE; }
-  std::clog << "# WIDTH = " << config.WIDTH << std::endl;
-  std::clog << "# ALPHA = " << config.ALPHA << std::endl;
+
+  // print read values
+  std::clog << "# Config values read : "  << std::endl;
+  std::clog << "# NC        = " << config.NC        << std::endl;
+  std::clog << "# NGEOMETRY = " << config.NGEOMETRY << std::endl;
+  std::clog << "# NITER_GEO = " << config.NITER_GEO << std::endl;
+  std::clog << "# MODE      = " << config.MODE      << std::endl;
+  std::clog << "# SEED      = " << config.SEED      << std::endl;
+  std::clog << "# WIDTH     = " << config.WIDTH     << std::endl;
+  std::clog << "# ALPHA     = " << config.ALPHA     << std::endl;
 
   return EXIT_SUCCESS;
 }

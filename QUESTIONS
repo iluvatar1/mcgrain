@@ -2,7 +2,7 @@
 
 
 - Is that a gamma function with fmin = 0?
-
+It seems. The fit is good enough. But the quastion is : why?
 
 - What kind of distribution do I expect if I change width or alpha? check
 Now I am printing normalized. If width is too small, I need a lot of samples
