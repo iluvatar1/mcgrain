@@ -1,6 +1,6 @@
 #include "../inc/contact.hpp"
 #include "../inc/contacts_geometry_generation.hpp"
-#include "../inc/Random.hpp"
+#include "../inc/random.hpp"
 #include <cstdlib>
 #include <vector>
 #include <iostream>
@@ -24,8 +24,9 @@ int main(int argc, char **argv)
   while (ii < TOTAL) {
     int status = generate_contacts_geometry(contacts, MODE, ranmt);
     if ( EXIT_SUCCESS == status ) {
+      //std::cout << contacts[0].angle() << "\n"; // print polar angle
       for (const auto & c : contacts) {
-	//std::cout << c.x << "\t" << c.y << "\n"; // print coordinates
+      ////std::cout << c.x << "\t" << c.y << "\n"; // print coordinates
 	std::cout << c.angle() << "\n"; // print polar angle
       }
       ++count;

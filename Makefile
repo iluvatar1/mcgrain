@@ -3,14 +3,12 @@ IDIR=inc/
 SDIR=src/
 BDIR=bin/
 
-g++-4.7 -std=c++11 -O2 -Wall -I$HOME/lib/inc/ src/montecarlo_grain.cpp
-
 # gnu cc
 CXX       = g++-4.7
 
 ## FLAGS
 # CXX compiler flags
-CXXFLAGS  = -std=c++11 -O2 -Wall -I$(IDIR) -L$(HOME)/lib -I$(HOME)/lib/inc/
+CXXFLAGS  = -std=c++11 -Wall -I$(IDIR) -L$(HOME)/lib -I$(HOME)/lib/inc/ -O2 # -g -ggdb -save-temps
 
 # phony targets
 .PHONY: all clean 
@@ -36,6 +34,13 @@ all: $(BDIR)/montecarlo_grain.x  $(BDIR)/normalized_pdf.x  $(BDIR)/test_force_cr
 # make clean
 clean :
 	-rm -f *.o *~ core $(INCDIR)/*~ $(BDIR)/*.x
+
+# dependencies
+$(BDIR)/montecarlo_grain.x: $(IDIR)/contact.hpp $(IDIR)/contacts_force_generation.hpp $(IDIR)/contacts_geometry_generation.hpp $(IDIR)/mcgrain.hpp $(IDIR)/random.hpp   
+$(BDIR)/test_force_creation.x: $(IDIR)/contact.hpp $(IDIR)/contacts_force_generation.hpp $(IDIR)/contacts_geometry_generation.hpp $(IDIR)/random.hpp   
+$(BDIR)/test_geometry_creation.x: $(IDIR)/contact.hpp $(IDIR)/contacts_geometry_generation.hpp $(IDIR)/random.hpp   
+$(BDIR)/normalized_pdf.x: $(HOME)/lib/inc/histogram1d.hpp
+#$(BDIR)/tcorr.x: 
 
 
 # EXAMPLES

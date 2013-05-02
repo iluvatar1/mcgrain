@@ -11,8 +11,8 @@
 
 //--------------------------------------------------------------------
 // Constants
-const int NEQUI = 60000000; // computed from data
-const int NCORR = 15000;    // computed from example data
+const int NEQUI = 50000; //60000000; // computed from data
+const int NCORR = 1000; //15000;    // computed from example data
 
 //--------------------------------------------------------------------
 // New data types
