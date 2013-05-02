@@ -11,8 +11,8 @@
 
 //--------------------------------------------------------------------
 // Constants
-const int NEQUI = 50000; //60000000; // computed from data
-const int NCORR = 1000; //15000;    // computed from example data
+//const int NEQUI = 50000; //60000000; // computed from data
+//const int NCORR = 1000; //15000;    // computed from example data
 
 //--------------------------------------------------------------------
 // New data types
@@ -25,6 +25,8 @@ struct Configuration {
   int    SEED      = 0;							   // Seed for random number
   double WIDTH     = 0;							   // Width for new force exploration
   double ALPHA     = 0;						           // 1/p0
+  LONG   NEQUI     = 0;						           // Equilibrium time in Montecarlo steps
+  LONG   NCORR     = 0;						           // Correlation time in Montecarlo steps
 };
 
 //--------------------------------------------------------------------
@@ -39,7 +41,7 @@ int main(int argc, char **argv)
   Configuration config;
 
   if ( 2 != argc ) { help(argv[0]); return EXIT_FAILURE; }
-  if ( EXIT_SUCCESS != read_config(argv[1], config) ) { std::clog << "Error reading config file \n"; help(argv[0]); } ;
+  if ( EXIT_SUCCESS != read_config(argv[1], config) ) { std::clog << "Error reading config file \n"; help(argv[0]); return EXIT_FAILURE;} ;
   std::ofstream fnout("fn.dat"); if (!fnout) { std::cerr << "ERROR: Cannot open fn.dat\n"; std::exit(1); }
   std::ofstream pout("p.dat"); if (!pout) { std::cerr << "ERROR: Cannot open p.dat\n"; std::exit(1); }
 
@@ -77,7 +79,7 @@ int main(int argc, char **argv)
       // mcstep
       mcstep(contacts, config.WIDTH, config.ALPHA, ranmt);
       // print
-      if ( (ii >= NEQUI) && ( pcount >= NCORR ) ) { // WARNING : Magic constants for teq and tcorr
+      if ( (ii >= config.NEQUI) && ( pcount >= config.NCORR ) ) { // WARNING : Magic constants for teq and tcorr
 	for (const auto & c : contacts) {
 	  fnout << c.fn()/norm_fn << "\n"; // print forces
 	}
@@ -121,10 +123,12 @@ int read_config(const char * filename, Configuration & config)
   fin >> itmp; if (!fin) { return EXIT_FAILURE; } else { config.SEED      = itmp; }
   fin >> dtmp; if (!fin) { return EXIT_FAILURE; } else { config.WIDTH     = dtmp; }
   fin >> dtmp; if (!fin) { return EXIT_FAILURE; } else { config.ALPHA     = dtmp; } // 1/p0
+  fin >> Ltmp; if (!fin) { return EXIT_FAILURE; } else { config.NEQUI     = Ltmp; }
+  fin >> Ltmp; if (!fin) { return EXIT_FAILURE; } else { config.NCORR     = Ltmp; }
   fin.close();
 
   // validation
-  if (config.NITER_GEO < NEQUI ) { std::cerr << "ERROR: NITER_GEO too small (should be >= " << NEQUI << ").\n"; return EXIT_FAILURE; }
+  if (config.NITER_GEO < config.NEQUI ) { std::cerr << "ERROR: NITER_GEO too small (should be >= " << config.NEQUI << ").\n"; return EXIT_FAILURE; }
   if (config.WIDTH <= 0 || config.ALPHA <= 0) { std::cerr << "ERROR: Bad config values for ALPHA OR WIDTH. \n"; return EXIT_FAILURE; }
 
   // print read values
@@ -136,6 +140,8 @@ int read_config(const char * filename, Configuration & config)
   std::clog << "# SEED      = " << config.SEED      << std::endl;
   std::clog << "# WIDTH     = " << config.WIDTH     << std::endl;
   std::clog << "# ALPHA     = " << config.ALPHA     << std::endl;
+  std::clog << "# NEQUI     = " << config.NEQUI     << std::endl;
+  std::clog << "# NCORR     = " << config.NCORR     << std::endl;
 
   return EXIT_SUCCESS;
 }

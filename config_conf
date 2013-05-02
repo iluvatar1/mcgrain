@@ -1,16 +1,20 @@
 6
 1
-100000
+100000000
 0
 0
 4.5
 0.1
+60000000
+15000
+
 
 1 value : NC. Number of contacts
 2 value : NGEOMETRY. Number of times to test a geometry, important for random mode
-3 value : NITER_GEO. Number of iterations per geometry. Should be larger than 60000.  
+3 value : NITER_GEO. Number of iterations per geometry. Should be larger than NEQUI.  
 4 value : MODE. Contacts Mode: 0 = fixed, 1 = random
 5 value : SEED. Seed for random number
 6 value : WIDTH. Fnew -> Fold + [-width, width]
 7 value : ALPHA. alpha = 1/p0, p0 = Mean external value for pressure p
-
+8 value : NEQUI. Equilibrium time :  iterations to perform before start taking samples
+9 value : NCORR. Correlation time : Number of iterations between (independent) samples. 
