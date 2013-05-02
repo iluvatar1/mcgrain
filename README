@@ -10,3 +10,7 @@ or
 g++-4.7 -std=c++11 -O2 -Wall -I$HOME/lib/inc/ src/montecarlo_grain.cpp
 
 For debugging: -g -ggdb --save-temps
+
+
+PARAMETERS:
+- NC = 6, FIXED GEOMETRY: NEQUI = 60000000, NCORR = 15000
