@@ -87,8 +87,22 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
     }
     else {
       assert(contacts.size() == angles.size());
+      // validate angles (WARNING: should store blocking angles for poly-disperse systems)
+      std::sort(angles.begin(), angles.end());
+      for (int ic = 0; ic < ncontacts-1; ++ic) {
+	if (angles[ic+1] - angles[ic] < M_PI/3) { // WARNING: Only monodisperse
+	  return EXIT_FAILURE;
+	}
+      }
+      if (2*M_PI - angles[ncontacts-1] < M_PI/3) { // WARNING: Only monodisperse
+	  return EXIT_FAILURE;
+      }
+      // change origin
       const double shift = ranmt.uniform(0, 2*M_PI); 
-      for (int ic = 0; ic < ncontacts; ++ic) contacts[ic].angle(std::fmod(angles[ic] + shift + 2*M_PI, 2*M_PI));
+      for (auto & x : angles) x = std::fmod(x + shift + 2*M_PI, 2*M_PI);
+      std::sort(angles.begin(), angles.end());
+      // set contact angles
+      for (int ic = 0; ic < ncontacts; ++ic) contacts[ic].angle(angles[ic]);
     }
 
     //*/
