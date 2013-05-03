@@ -13,13 +13,14 @@ double get_p(std::vector<Contact> & contacts)
 }
 
 template <class Random_t>
-void mcstep(std::vector<Contact> & contacts, const double & width, const double & alpha, 
+int mcstep(std::vector<Contact> & contacts, const double & width, const double & alpha, 
 	    Random_t & ranmt)
 {
+  int status;
   double p, pnew, deltap, prob;
   
   p = get_p(contacts);
-  generate_forces(contacts, width, ranmt);
+  status = generate_forces(contacts, width, ranmt); if (EXIT_SUCCESS != status) { return EXIT_FAILURE; }
   for (auto & c : contacts) c.swap_forces();
   pnew = get_p(contacts);
   for (auto & c : contacts) c.swap_forces();
@@ -27,6 +28,8 @@ void mcstep(std::vector<Contact> & contacts, const double & width, const double 
   prob = std::exp(-alpha*deltap);
   if (prob > 1)   for (auto & c : contacts) c.swap_forces();
   else if (ranmt.r() < prob)   for (auto & c : contacts) c.swap_forces();
+
+  return EXIT_SUCCESS;
 }
 
 #endif //__MCGRAIN_HPP__

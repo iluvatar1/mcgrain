@@ -77,7 +77,11 @@ int main(int argc, char **argv)
     LONG ii = 0, pcount = 0;
     while (ii < config.NITER_GEO) {
       // mcstep
-      mcstep(contacts, config.WIDTH, config.ALPHA, ranmt);
+      int status = mcstep(contacts, config.WIDTH, config.ALPHA, ranmt);
+      if (EXIT_SUCCESS != status) {
+	std::cerr << "# Error in force generation. Review contact geometry. Exiting." << std::endl;
+	return EXIT_FAILURE;
+      }
       // print
       if ( (ii >= config.NEQUI) && ( pcount >= config.NCORR ) ) { // WARNING : Magic constants for teq and tcorr
 	for (const auto & c : contacts) {

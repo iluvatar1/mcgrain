@@ -65,11 +65,27 @@ int generate_forces(std::vector<Contact> & contacts, const double & width, Rando
     fntest = new_normal_force(contacts[iiref2], width, ranmt);
     contacts[iiref2].fnnew(fntest);
   }
-  forces_found = true;
-    
+  forces_found = true;  
+
   if (false == forces_found) {
     return EXIT_FAILURE;
   }
+
+  // check if net force sums zero 
+  double sumFx = 0, sumFy = 0;
+  for (const auto & c : contacts) {
+    sumFx += c.fnnew()*c.costheta();
+    sumFy += c.fnnew()*c.sintheta();
+  }
+  if (std::fabs(sumFx) > 1.0e-12 || std::fabs(sumFy) > 1.0e-12) {
+    std::cerr << "ERROR: New forces are not equilibrated" << std::endl;
+    std::cerr << "sumFx = " << sumFx << std::endl;
+    std::cerr << "sumFy = " << sumFy << std::endl;
+    std::cin.get();
+    return EXIT_FAILURE;
+  }
+
+
   return EXIT_SUCCESS;
 }
 
