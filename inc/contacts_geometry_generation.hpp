@@ -18,6 +18,7 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
 			       const int & MAX_TRIES = 1000);
 double distance(const double & theta0, const double & theta1);
 double distance_new(const double & theta0, const double & theta1);
+bool are_angles_valid(const std::vector<double> & angles);
 
 //--------------------------------------------------------------------
 // Definitions
@@ -50,6 +51,7 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
     bool found = true;
     int itry = 0;
     while (itry < MAX_TRIES) {
+      std::clog << "# try = " << itry << std::endl;
       Imin.clear(); Imax.clear();
       angles.clear(); 
       found = true;
@@ -78,6 +80,10 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
 	}
 	if (false == interval_found) { found = false; break; }
       }
+      std::sort(angles.begin(), angles.end());
+      if (true == found) {
+	found = are_angles_valid(angles);
+      }
       if (true == found) break;
       ++itry;
     }
@@ -86,17 +92,7 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
       return EXIT_FAILURE;
     }
     else {
-      assert(contacts.size() == angles.size());
-      // validate angles (WARNING: should store blocking angles for poly-disperse systems)
-      std::sort(angles.begin(), angles.end());
-      for (int ic = 0; ic < ncontacts-1; ++ic) {
-	if (angles[ic+1] - angles[ic] < M_PI/3) { // WARNING: Only monodisperse
-	  return EXIT_FAILURE;
-	}
-      }
-      if (2*M_PI - angles[ncontacts-1] < M_PI/3) { // WARNING: Only monodisperse
-	  return EXIT_FAILURE;
-      }
+      assert(contacts.size() == angles.size());      
       // change origin
       const double shift = ranmt.uniform(0, 2*M_PI); 
       for (auto & x : angles) x = std::fmod(x + shift + 2*M_PI, 2*M_PI);
@@ -157,6 +153,43 @@ double distance_new(const double & theta0, const double & theta1)
   assert(0 <= theta0 && theta0 <= 2*M_PI);
   assert(0 <= theta1 && theta1 <= 2*M_PI);
   return std::fmod(theta0 - theta1 + 2*M_PI, 2*M_PI);
+}
+
+// VALIDATION TESTS
+bool are_angles_valid(const std::vector<double> & angles) 
+{
+  const int nangles = angles.size();
+
+  // validate blocking angles (WARNING: should store blocking angles for poly-disperse systems)
+  // MUST BE SORTED
+  for (int ic = 0; ic < nangles-1; ++ic) {
+    if (angles[ic+1] - angles[ic] < M_PI/3) { // WARNING: Only monodisperse
+      return false;
+    }
+  }
+  if (2*M_PI - angles[nangles-1] < M_PI/3) { // WARNING: Only monodisperse
+    return false;
+  }
+  // validate if forces can be balanced (well distributed angles, at least one opposite coordinate)
+  std::vector<double> x(nangles, 0), y(nangles, 0);
+  int irefx = -1, irefy = -1;
+  for (int ic = 0; ic < nangles; ++ic) {
+    x[ic] = std::cos(angles[ic]); y[ic] = std::sin(angles[ic]); 
+    if (-1 == irefx && std::fabs(x[ic]) > 1.0e-12) irefx = ic;
+    if (-1 == irefy && std::fabs(y[ic]) > 1.0e-12) irefy = ic;
+  }
+  if (-1 == irefx && -1 == irefy) return EXIT_FAILURE;
+  bool flagX = false, flagY = false;
+  for (int ic = 0; ic < nangles; ++ic) {
+    if ((std::fabs(x[ic]) > 1.0e-12) && (x[ic]*x[irefx] < 0)) flagX = true;
+    if ((std::fabs(y[ic]) > 1.0e-12) && (y[ic]*y[irefy] < 0)) flagY = true;
+  }      
+  if (false == flagX || false == flagY) { 
+    std::cerr << "# Bad geometry. Forces cannot be aligned." << std::endl;
+    return false;
+  }
+  
+  return true;
 }
 
 #endif // __CONTACTS_GEOMETRY_GENERATION_HPP__

@@ -27,16 +27,16 @@ int main(int argc, char **argv)
   contacts[2].angle(M_PI);      contacts[2].fn(1);
   contacts[3].angle(3*M_PI/2);  contacts[3].fn(1);
   */
-  ///*// 3 contacts, check tool
+  /*// 3 contacts, check tool
   std::vector<Contact> contacts(3, null_contact);
   contacts[0].angle(0);         contacts[0].fn(1);
   contacts[1].angle(M_PI/4);    contacts[1].fn(1);
   contacts[2].angle(7*M_PI/4);  contacts[2].fn(1);
-  //*/
+  */
   
-  //std::vector<Contact> contacts(NC, null_contact);
+  std::vector<Contact> contacts(NC, null_contact);
   // geometry
-  //status = generate_contacts_geometry(contacts, MODE, ranmt);
+  status = generate_contacts_geometry(contacts, MODE, ranmt);
   // forces
   for (auto & c : contacts) c.fn(10*ranmt.r());
 

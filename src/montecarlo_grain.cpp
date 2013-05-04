@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     }
     
     // initial forces : random, not in equilibrium
-    for (auto & c : contacts) c.fn(ranmt.uniform(0.1*norm_fn, 10*norm_fn)); 
+    for (auto & c : contacts) c.fn(ranmt.uniform(0.1*norm_fn, 1*norm_fn)); 
     
     // mc steps
     LONG ii = 0, pcount = 0;
