@@ -95,7 +95,10 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
       assert(contacts.size() == angles.size());      
       // change origin
       const double shift = ranmt.uniform(0, 2*M_PI); 
-      for (int ic = 0; ic < ncontacts; ++ic) contacts[ic].angle(std::fmod(angles[ic] + shift + 2*M_PI, 2*M_PI));
+      for (auto & x : angles) x = std::fmod(x + shift + 2*M_PI, 2*M_PI);
+      std::sort(angles.begin(), angles.end());
+      // set contact angles
+      for (int ic = 0; ic < ncontacts; ++ic) contacts[ic].angle(angles[ic]);
     }
 
     //*/
