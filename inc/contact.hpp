@@ -16,8 +16,8 @@ public : // methods
   void ftnew(const double & newftnew);
   // get
   double angle(void) const { return theta_; };
-  double costheta(void) const { return costheta_; };
   double sintheta(void) const { return sintheta_; };
+  double costheta(void) const { return costheta_; };
   double x(void) const { return costheta_; };
   double y(void) const { return sintheta_; };
   double fn(void) const { return fn_; };
