@@ -19,13 +19,14 @@ void mcstep(std::vector<Contact> & contacts, const double & width, const double 
   double p, pnew, deltap, prob;
   
   p = get_p(contacts);
-  generate_forces(contacts, width, ranmt);
+  const int status = generate_forces(contacts, width, ranmt);
+  if (EXIT_SUCCESS != status) return; // error in force generation, keep old forces
   for (auto & c : contacts) c.swap_forces();
   pnew = get_p(contacts);
   for (auto & c : contacts) c.swap_forces();
   deltap = pnew - p;
   prob = std::exp(-alpha*deltap);
-  if (prob > 1)   for (auto & c : contacts) c.swap_forces();
+  if (prob >= 1)   for (auto & c : contacts) c.swap_forces();
   else if (ranmt.r() < prob)   for (auto & c : contacts) c.swap_forces();
 }
 

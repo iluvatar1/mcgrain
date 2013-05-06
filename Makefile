@@ -8,7 +8,7 @@ CXX       = g++-4.7
 
 ## FLAGS
 # CXX compiler flags
-CXXFLAGS  = -std=c++11 -Wall -I$(IDIR) -L$(HOME)/lib -I$(HOME)/lib/inc/ -O2  -DDEBUG # -g -ggdb -save-temps
+CXXFLAGS  = -std=c++11 -Wall -I$(IDIR) -L$(HOME)/lib -I$(HOME)/lib/inc/ -O2  #-DDEBUG # -g -ggdb -save-temps
 
 # phony targets
 .PHONY: all clean 
