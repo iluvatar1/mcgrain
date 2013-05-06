@@ -7,8 +7,8 @@
 double get_p(std::vector<Contact> & contacts)
 {
   double p = 0; 
-  for (auto & c : contacts) { p += c.fn(); }
-  p /= 4*M_PI;
+  for (auto & c : contacts) { p += c.fn(); } // mono-disperse
+  p /= M_PI; // unit radius
   return p;
 }
 
