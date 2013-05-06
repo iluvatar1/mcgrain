@@ -52,6 +52,9 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
     bool found = true;
     int itry = 0;
     while (itry < MAX_TRIES) {
+#ifdef DEBUG
+      std::clog << "# itry = " << itry << std::endl;
+#endif
       Imin.clear(); Imax.clear();
       angles.clear(); 
       found = true;
@@ -66,7 +69,7 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
 	// find first interval available in size
 	bool interval_found = false;
 	const int ninterval = Imin.size();
-	for (int ii = 0; ii < ninterval; ++ii) {
+	for (int ii = ninterval-1; ii >= 0; --ii) {
 	  if ((Imax[ii] - Imin[ii]) >= block_angle) {
 	    interval_found = true;
 	    theta = ranmt.uniform(Imin[ii] + 0.5*block_angle, Imax[ii] - 0.5*block_angle);
@@ -80,13 +83,17 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
 	}
 	if (false == interval_found) { found = false; break; }
       }
-      if (true == found) {
-	const double shift = ranmt.uniform(0, 2*M_PI); 
-	for (auto & x : angles) x = std::fmod(x + shift + 2*M_PI, 2*M_PI);
+      if (true == found) { // assure they are not on the same half-hemisphere
 	std::sort(angles.begin(), angles.end());
 	found = validate_angles(angles);
       }
-      if (true == found) break;
+      if (true == found) { // accept, since angles have been validated
+	const double shift = ranmt.uniform(0, 2*M_PI); 
+	std::clog << "shift = " << shift << std::endl; // DELETE
+	for (auto & x : angles) x = std::fmod(x + shift + 2*M_PI, 2*M_PI);
+	std::sort(angles.begin(), angles.end());
+	break;
+      }
       ++itry;
     }
     if (false == found) {
@@ -159,36 +166,40 @@ double distance_new(const double & theta0, const double & theta1)
 bool validate_angles(const std::vector<double> & angles) 
 {
   const int nangles = angles.size();
-  // check if there is at least one opposite angle to balance forces
-  double xref = 0, yref = 0;
-  int ixref = -1, iyref = -1;
-  // find first non-null
-  for (int ia = 0; ia < nangles; ++ia) {
-    const double x = std::cos(angles[ia]);
-    if ((-1 == ixref) && (std::fabs(x) > 1.0e-12)) { xref = x; ixref = ia; }
-    const double y = std::sin(angles[ia]);
-    if ((-1 == iyref) && (std::fabs(y) > 1.0e-12)) { yref = y; iyref = ia; }
-  }
-  if (-1 == ixref || -1 == iyref) return false;
-  bool x_opposite_found = false, y_opposite_found = false;
-  for (int ia = 0; ia < nangles; ++ia) {
-    const double x = std::cos(angles[ia]);
-    if (false == x_opposite_found && ixref != ia && (std::fabs(x) > 1.0e-12) && x*xref < 0) x_opposite_found = true;
-    const double y = std::sin(angles[ia]);
-    if (false == y_opposite_found && iyref != ia && (std::fabs(y) > 1.0e-12) && y*yref < 0) y_opposite_found = true;
-  }
-  if (false == x_opposite_found || false == y_opposite_found) {
-#ifdef DEBUG 
-    std::clog << "# No opposite found. Bad geometry." << std::endl;
-    std::clog << "# x_opposite_found = " << x_opposite_found << std::endl;
-    std::clog << "# y_opposite_found = " << y_opposite_found << std::endl;
-    print_angles_info(angles);
+ 
+#ifdef DEBUG
+  std::clog << "# Validating angles." << std::endl;
+  for (const auto & x : angles) std::clog << "# angles = " << x << std::endl;
 #endif
-    return false;
+ 
+  // check that not all angles are on the same hemispherium
+  // IMPORTANT FOR Nc=3 and ONLY NORMAL FORCES
+  double ref_angle;
+  bool status_x = false, status_y = false; 
+  for (int ia = 0; ia < nangles; ++ia) {
+    // put at (1, 0)
+    status_x = status_y = false;
+    ref_angle = angles[ia];
+    const double yref = std::sin(angles[(ia + 1 + nangles)%nangles] - ref_angle);
+    for (int ja = 0; ja < nangles; ++ja) {
+      if (ia == ja) continue;
+      if (std::cos(angles[ja] - ref_angle) < 0) { status_x = true; }
+      if (std::sin(angles[ja] - ref_angle)*yref < 0) { status_y = true; }
+    }    
+    if (false == status_x || false == status_y) {std::clog << "# CO1 " << std::endl; print_angles_info(angles);}
+    if (false == status_x || false == status_y) return false;
+    // put at (0, 1)
+    status_x = status_y = false;
+    ref_angle = angles[ia] - M_PI/2;
+    const double xref = std::cos(angles[(ia + 1)%nangles] - ref_angle);
+    for (int ja = 0; ja < nangles; ++ja) {
+      if (ia == ja) continue;
+      if (std::cos(angles[ja] - ref_angle)*xref < 0) { status_x = true; }
+      if (std::sin(angles[ja] - ref_angle) < 0) { status_y = true; }
+    }    
+    if (false == status_x || false == status_y) {std::clog << "# CO2 " << std::endl; print_angles_info(angles);}
+    if (false == status_x || false == status_y) return false;
   }
-
-  // check distances between angles (will require to save blocking_angles)
-
 
   // return the validation status
   return true;
