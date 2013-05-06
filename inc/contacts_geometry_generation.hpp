@@ -18,6 +18,8 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
 			       const int & MAX_TRIES = 1000);
 double distance(const double & theta0, const double & theta1);
 double distance_new(const double & theta0, const double & theta1);
+bool validate_angles(const std::vector<double> & angles); 
+void print_angles_info(const std::vector<double> & angles); 
 
 //--------------------------------------------------------------------
 // Definitions
@@ -31,8 +33,8 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
   // for 3d, maximum 12 contacts allowed
   const int ncontacts = contacts.size();
   if (ncontacts <= 0 || 7 <= ncontacts) return EXIT_FAILURE;
-  
-  // create contacts
+
+  // create contacts angles
   if ( 0 == MODE ) { // fixed angles
     std::clog << "# Fixed angles mode" << std::endl;
     const double delta = 2*M_PI/ncontacts;
@@ -78,6 +80,12 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
 	}
 	if (false == interval_found) { found = false; break; }
       }
+      if (true == found) {
+	const double shift = ranmt.uniform(0, 2*M_PI); 
+	for (auto & x : angles) x = std::fmod(x + shift + 2*M_PI, 2*M_PI);
+	std::sort(angles.begin(), angles.end());
+	found = validate_angles(angles);
+      }
       if (true == found) break;
       ++itry;
     }
@@ -87,9 +95,12 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
     }
     else {
       assert(contacts.size() == angles.size());
-      const double shift = ranmt.uniform(0, 2*M_PI); 
-      for (int ic = 0; ic < ncontacts; ++ic) contacts[ic].angle(std::fmod(angles[ic] + shift + 2*M_PI, 2*M_PI));
-    }
+      for (int ic = 0; ic < ncontacts; ++ic) contacts[ic].angle(angles[ic]);
+#ifdef DEBUG
+      std::clog << "Good angles found : " << std::endl;
+      print_angles_info(angles);
+#endif
+    } // else (not fixed, but random mode)
 
     //*/
     /*
@@ -144,5 +155,54 @@ double distance_new(const double & theta0, const double & theta1)
   assert(0 <= theta1 && theta1 <= 2*M_PI);
   return std::fmod(theta0 - theta1 + 2*M_PI, 2*M_PI);
 }
+
+bool validate_angles(const std::vector<double> & angles) 
+{
+  const int nangles = angles.size();
+  // check if there is at least one opposite angle to balance forces
+  double xref = 0, yref = 0;
+  int ixref = -1, iyref = -1;
+  // find first non-null
+  for (int ia = 0; ia < nangles; ++ia) {
+    const double x = std::cos(angles[ia]);
+    if ((-1 == ixref) && (std::fabs(x) > 1.0e-12)) { xref = x; ixref = ia; }
+    const double y = std::sin(angles[ia]);
+    if ((-1 == iyref) && (std::fabs(y) > 1.0e-12)) { yref = y; iyref = ia; }
+  }
+  if (-1 == ixref || -1 == iyref) return false;
+  bool x_opposite_found = false, y_opposite_found = false;
+  for (int ia = 0; ia < nangles; ++ia) {
+    const double x = std::cos(angles[ia]);
+    if (false == x_opposite_found && ixref != ia && (std::fabs(x) > 1.0e-12) && x*xref < 0) x_opposite_found = true;
+    const double y = std::sin(angles[ia]);
+    if (false == y_opposite_found && iyref != ia && (std::fabs(y) > 1.0e-12) && y*yref < 0) y_opposite_found = true;
+  }
+  if (false == x_opposite_found || false == y_opposite_found) {
+#ifdef DEBUG 
+    std::clog << "# No opposite found. Bad geometry." << std::endl;
+    std::clog << "# x_opposite_found = " << x_opposite_found << std::endl;
+    std::clog << "# y_opposite_found = " << y_opposite_found << std::endl;
+    print_angles_info(angles);
+#endif
+    return false;
+  }
+
+  // check distances between angles (will require to save blocking_angles)
+
+
+  // return the validation status
+  return true;
+}
+
+void print_angles_info(const std::vector<double> & angles) 
+{
+  const int nangles = angles.size();
+  for (int ia = 0; ia < nangles; ++ia) {
+    std::clog << "# angle[" << ia << "] = " << angles[ia] << std::endl;
+    std::clog << "#     x[" << ia << "] = " << std::cos(angles[ia]) << std::endl;
+    std::clog << "#     y[" << ia << "] = " << std::sin(angles[ia]) << std::endl;
+  }
+}
+
 
 #endif // __CONTACTS_GEOMETRY_GENERATION_HPP__
