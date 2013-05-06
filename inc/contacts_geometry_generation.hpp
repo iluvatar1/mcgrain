@@ -97,7 +97,7 @@ int generate_contacts_geometry(std::vector<Contact> & contacts, const int & MODE
       assert(contacts.size() == angles.size());
       for (int ic = 0; ic < ncontacts; ++ic) contacts[ic].angle(angles[ic]);
 #ifdef DEBUG
-      std::clog << "Good angles found : " << std::endl;
+      std::clog << "# Good angles found : " << std::endl;
       print_angles_info(angles);
 #endif
     } // else (not fixed, but random mode)
