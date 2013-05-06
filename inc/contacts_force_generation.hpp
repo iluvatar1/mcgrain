@@ -13,6 +13,13 @@
 
 //--------------------------------------------------------------------
 // Declarations
+template <class Random_t>
+double new_normal_force(const Contact & contact, const double & width, Random_t & ranmt) ;
+template <class Random_t>
+int generate_forces(std::vector<Contact> & contacts, const double & width, Random_t & ranmt);
+template <class Random_t>
+int set_initial_forces(std::vector<Contact> & contacts, const double & F0, Random_t & ranmt);
+bool validate_forces(const std::vector<Contact> & contacts, const std::vector<double> & testforces); 
 
 //--------------------------------------------------------------------
 // Definitions
@@ -92,7 +99,9 @@ int generate_forces(std::vector<Contact> & contacts, const double & width, Rando
       newforces[iiref2] = new_normal_force(contacts[iiref2], width, ranmt);
       forces_found = true;
     }
-    //if (true == forces_found) validate!!!;
+    if (true == forces_found) { 
+      forces_found = validate_forces(contacts, newforces);
+    }
     if (true == forces_found) break;
     ++itry;
   }
@@ -165,5 +174,21 @@ int set_initial_forces(std::vector<Contact> & contacts, const double & F0, Rando
   return EXIT_SUCCESS;
 }
 
+bool validate_forces(const std::vector<Contact> & contacts, const std::vector<double> & testforces) 
+{
+  const int ncontacts = contacts.size();
+
+  // check if sumFx = sumFy = 0
+  double sumFx = 0, sumFy = 0;
+  for (int ic = 0; ic < ncontacts; ++ic) {
+    sumFx += testforces[ic]*contacts[ic].costheta();
+    sumFy += testforces[ic]*contacts[ic].sintheta();
+  }
+  if (std::fabs(sumFx) > 1.0e-10 || std::fabs(sumFy) > 1.0e-10)
+    return false;
+    
+  // tests passed
+  return true;
+}
 
 #endif // __CONTACTS_FORCE_GENERATION_HPP__
