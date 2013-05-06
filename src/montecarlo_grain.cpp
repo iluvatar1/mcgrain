@@ -70,7 +70,11 @@ int main(int argc, char **argv)
 
     // initial forces : random, not in equilibrium
     for (auto & c : contacts) c.fn(ranmt.uniform(0.01*norm_fn, 2*norm_fn)); 
+    for (auto & c : contacts) std::clog << "# c.f = " << c.fn() << std::endl; 
     //for (auto & c : contacts) c.fn(0); 
+    set_initial_forces(contacts, norm_fn, ranmt);
+    for (auto & c : contacts) std::clog << "# c.f = " << c.fn() << std::endl; 
+    std::cin.get();
     
     // mc steps
     LONG ii = 0, pcount = 0;

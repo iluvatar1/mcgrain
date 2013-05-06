@@ -13,7 +13,6 @@
 
 //--------------------------------------------------------------------
 // Declarations
-//int generate_forces(std::vector<Contact> & contacts, const double & MAX_TRIES = 1000);
 
 //--------------------------------------------------------------------
 // Definitions
@@ -101,6 +100,62 @@ int generate_forces(std::vector<Contact> & contacts, const double & width, Rando
   if (true == forces_found) {
     for (int ii = 0; ii < ncontacts; ++ii) {
       contacts[ii].fnnew(newforces[ii]);
+    }
+  }
+  else if (false == forces_found) {
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
+template <class Random_t>
+int set_initial_forces(std::vector<Contact> & contacts, const double & F0, Random_t & ranmt)
+{
+  const int ncontacts = contacts.size();
+  if (ncontacts <= 1) return EXIT_FAILURE;
+  if (F0 < 0) return EXIT_FAILURE;
+  // choose at random two contacts for fulfilling mechanical restrictions
+  int iiref1 = int(ranmt.r()*ncontacts);
+  int iiref2 = int(ranmt.r()*ncontacts); while (iiref2 == iiref1) { iiref2 = int(ranmt.r()*ncontacts); }
+
+  std::vector<double> forces(ncontacts, 0);
+  bool forces_found = false;
+  int itry = 0;
+  while (itry < 1000) {
+    forces_found = false;
+    std::fill(forces.begin(), forces.end(), -1.0);
+    double fntest = 0;
+    double Fsum[2] = {0, 0};
+    for ( int ii = 0; ii < ncontacts; ++ii ) {
+      if ( iiref1 == ii || iiref2 == ii ) continue;
+      fntest = F0;
+      forces[ii] = fntest;
+      Fsum[0] += fntest*contacts[ii].costheta(); Fsum[1] += fntest*contacts[ii].sintheta();
+    }
+    // Remaining forces using auxiliary contacts to fullfill mechanical equilibrium
+    const double U1[2] = { contacts[iiref1].costheta(), contacts[iiref1].sintheta() }; 
+    const double U2[2] = { contacts[iiref2].costheta(), contacts[iiref2].sintheta() }; 
+    const double det = U1[1]*U2[0] - U1[0]*U2[1];
+    if (std::fabs(det) > 1.0e-10) {
+      fntest = (Fsum[0]*U2[1] - Fsum[1]*U2[0])/det;
+      forces[iiref1] = fntest;
+      fntest = (Fsum[1]*U1[0] - Fsum[0]*U1[1])/det;
+      forces[iiref2] = fntest;
+      if (forces[iiref1] >= 0 && forces[iiref2] >= 0)
+	forces_found = true;
+    }
+    else {
+      forces[iiref1] = F0;
+      forces[iiref2] = F0;
+      forces_found = true;
+    }
+    if (true == forces_found) break;
+    ++itry;
+  } // end itry
+  if (true == forces_found) {
+    for (int ii = 0; ii < ncontacts; ++ii) {
+      contacts[ii].fn(forces[ii]);
     }
   }
   else if (false == forces_found) {
