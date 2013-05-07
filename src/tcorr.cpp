@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <cstdio>
 
 //--------------------------------------------------------------------
 // FUNCTION DECLARATIONS
@@ -29,8 +30,10 @@ int main(int argc, char **argv)
   std::vector<double> outdata(data.size(), 0.0);
   autocorrelation(data, outdata);
 
+  std::cout.setf(std::ios::scientific);
+  std::cout.precision(16);
   std::clog << "# Printing autocorrelation data ..." << std::endl;
-  for (const auto & x : outdata) std::cout << x << "\n";
+  for (const auto & x : outdata) std::fprintf(stdout, "%25.16e\n", x);
 
   // finnish
   return EXIT_SUCCESS;
@@ -40,7 +43,7 @@ int main(int argc, char **argv)
 // FUNCTION DEFINITIONS
 void help(void)
 {
-  std::clog << "# Usage : \n# exename ifilename" << std::endl;
+  std::clog << "# Usage : \n#\n# exename ifilename\n#" << std::endl;
   std::clog << "# exename   : This executable name" << std::endl;
   std::clog << "# ifilename : Input filename with data to process" << std::endl;
 }
