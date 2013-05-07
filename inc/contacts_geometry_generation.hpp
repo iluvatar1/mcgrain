@@ -185,7 +185,7 @@ bool validate_angles(const std::vector<double> & angles)
       if (std::cos(angles[ja] - ref_angle) < 0) { status_x = true; }
       if (std::sin(angles[ja] - ref_angle)*yref < 0) { status_y = true; }
     }    
-    if (false == status_x || false == status_y) {std::clog << "# TEST1 geometry failed " << std::endl; print_angles_info(angles);}
+    if (false == status_x || false == status_y) {std::clog << "\n# TEST1 geometry failed " << std::endl; print_angles_info(angles);}
     if (false == status_x || false == status_y) return false;
     // put at (0, 1)
     status_x = status_y = false;
@@ -196,7 +196,7 @@ bool validate_angles(const std::vector<double> & angles)
       if (std::cos(angles[ja] - ref_angle)*xref < 0) { status_x = true; }
       if (std::sin(angles[ja] - ref_angle) < 0) { status_y = true; }
     }    
-    if (false == status_x || false == status_y) {std::clog << "# TEST2 geometry failed " << std::endl; print_angles_info(angles);}
+    if (false == status_x || false == status_y) {std::clog << "\n# TEST2 geometry failed " << std::endl; print_angles_info(angles);}
     if (false == status_x || false == status_y) return false;
   }
 
