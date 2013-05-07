@@ -66,7 +66,10 @@ int autocorrelation(const std::vector<double> & indata, std::vector<double> & ou
   }
 
   // normalize
-  for (auto & x : outdata) x /= outdata[0];
+  std::clog << "corr[0] = " << outdata[0] << std::endl;
+  std::clog << "corr[1] = " << outdata[1] << std::endl;
+  const double norm = outdata[0];
+  for (auto & x : outdata) x /= norm;
 
   return EXIT_SUCCESS;
 }
