@@ -62,7 +62,7 @@ int autocorrelation(const std::vector<double> & indata, std::vector<double> & ou
       sum3 += indata[jj+ii];
     }
     outdata[ii] = sum1*tmp - sum2*sum3*tmp*tmp;
-    std::clog << outdata[ii] << std::endl;
+    //std::clog << outdata[ii] << std::endl;
   }
 
   // normalize
