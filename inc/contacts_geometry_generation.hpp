@@ -201,6 +201,7 @@ bool validate_angles(const std::vector<double> & angles)
   }
 
   // return the validation status
+  std::clog << "# Geometry tests successfull." << std::endl;
   return true;
 }
 

@@ -55,12 +55,12 @@ int autocorrelation(const std::vector<double> & indata, std::vector<double> & ou
   
   for (int ii = 0; ii < iimax; ++ii) {
     double sum1 = 0, sum2 = 0, sum3 = 0;
-    const double tmp = 1.0/(iimax - ii);
     for (int jj = 0; jj < iimax-ii; ++jj) {
       sum1 += indata[jj]*indata[jj+ii];
       sum2 += indata[jj];
       sum3 += indata[jj+ii];
     }
+    const double tmp = 1.0/(iimax - ii);
     outdata[ii] = sum1*tmp - sum2*sum3*tmp*tmp;
     //std::clog << outdata[ii] << std::endl;
   }
