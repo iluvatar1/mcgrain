@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 {
   Configuration config;
 
-  if ( 2 != argc ) { help(argv[0]); return EXIT_FAILURE; }
+  if ( argc < 2 ) { help(argv[0]); return EXIT_FAILURE; }
   if ( EXIT_SUCCESS != read_config(argv[1], config) ) { std::clog << "Error reading config file \n"; help(argv[0]); return EXIT_FAILURE;} ;
   std::ofstream fnout("fn.dat"); if (!fnout) { std::cerr << "ERROR: Cannot open fn.dat\n"; std::exit(1); }
   std::ofstream pout("p.dat"); if (!pout) { std::cerr << "ERROR: Cannot open p.dat\n"; std::exit(1); }
