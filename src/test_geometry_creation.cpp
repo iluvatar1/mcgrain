@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <vector>
 #include <iostream>
+#include <cstdio>
 
 int main(int argc, char **argv) 
 {
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
       //std::cout << contacts[0].angle() << "\n"; // print polar angle
       for (const auto & c : contacts) {
       ////std::cout << c.x << "\t" << c.y << "\n"; // print coordinates
-	std::cout << c.angle() << "\n"; // print polar angle
+	std::printf("%25.16e\n", c.angle());  // print polar angle
       }
       ++count;
     }
