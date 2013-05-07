@@ -41,7 +41,9 @@ int main(int argc, char **argv)
   if ( argc < 2 ) { help(argv[0]); return EXIT_FAILURE; }
   if ( EXIT_SUCCESS != read_config(argv[1], config) ) { std::clog << "Error reading config file \n"; help(argv[0]); return EXIT_FAILURE;} ;
   std::ofstream fnout("fn.dat"); if (!fnout) { std::cerr << "ERROR: Cannot open fn.dat\n"; std::exit(1); }
+  fnout.setf(std::ios::scientific); fnout.precision(16);
   std::ofstream pout("p.dat"); if (!pout) { std::cerr << "ERROR: Cannot open p.dat\n"; std::exit(1); }
+  pout.setf(std::ios::scientific); pout.precision(16);
 
   // input mcgrain parameters
   const double norm_p  = 1.0/config.ALPHA; // = p0
