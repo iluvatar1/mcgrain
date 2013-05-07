@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <vector>
 #include <iostream>
+#include <cstdio>
 
 int main(int argc, char **argv) 
 {
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
     if ( EXIT_SUCCESS == status ) {
       for (auto & c : contacts) c.accept_new_forces();
       for (const auto & c : contacts) {
-	std::cout << c.fn() << "\n"; // print forces
+	std::printf("%25.16e\n", c.fn()); // print forces
       }
       ++count;
     }
