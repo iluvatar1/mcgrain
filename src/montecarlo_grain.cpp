@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	pout << get_p(contacts)/norm_p << "\n";
 	pcount = 0;
       }
-      if (0 == scount || scount > 100000) { // print progress to screen every 100000 steps
+      if (0 == scount || scount > (config.NITER_GEO/100)) { // print progress to screen every 1% steps
 	std::clog << "# iter = " << ii << " ( of " << config.NITER_GEO << ")" << std::endl;
 	scount = 0;
       }
