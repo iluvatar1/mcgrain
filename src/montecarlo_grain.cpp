@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     set_initial_forces(contacts, norm_fn, ranmt);
     
     // mc steps
-    LONG ii = 0, pcount = 0;
+    LONG ii = 0, pcount = 0, scount = 0;
     while (ii < config.NITER_GEO) {
       // mcstep
       mcstep(contacts, config.WIDTH, config.ALPHA, ranmt);
@@ -88,7 +88,11 @@ int main(int argc, char **argv)
 	pout << get_p(contacts)/norm_p << "\n";
 	pcount = 0;
       }
-      ++ii; ++pcount;
+      if (0 == scount || scount > 100000) { // print progress to screen every 100000 steps
+	std::clog << "# iter = " << ii << " ( of " << config.NITER_GEO << ")" << std::endl;
+	scount = 0;
+      }
+      ++ii; ++pcount; ++scount;
     }
   }
 
